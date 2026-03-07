@@ -1,6 +1,6 @@
 {
   "nodes": {
-    "agents-instructions-builder": {
+    "materializer": {
       "flake": false,
       "locked": {
         "lastModified": 1772881971,
@@ -9,12 +9,12 @@
         "rev": "3c9e0e7c0eded81c4fa4629fcfb24ae24e58148c",
         "revCount": 3,
         "type": "git",
-        "url": "https://github.com/Alb-O/agents-instructions-builder.git"
+        "url": "https://github.com/Alb-O/materializer.git"
       },
       "original": {
         "ref": "main",
         "type": "git",
-        "url": "https://github.com/Alb-O/agents-instructions-builder.git"
+        "url": "https://github.com/Alb-O/materializer.git"
       }
     },
     "committer": {
@@ -89,7 +89,7 @@
     },
     "root": {
       "inputs": {
-        "agents-instructions-builder": "agents-instructions-builder",
+        "materializer": "materializer",
         "committer": "committer",
         "devenv": "devenv",
         "nixpkgs": "nixpkgs",

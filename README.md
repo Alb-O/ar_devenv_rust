@@ -40,7 +40,7 @@ devenv test
 ```
 
 For instruction merging/materialization, pair this repo with:
-- `github:Alb-O/agents-instructions-builder`
+- `github:Alb-O/materializer`
 
 Example app using this base:
 - `Alb-O/rust-app` (`order-quote-cli`)

@@ -6,12 +6,12 @@ inputs:
     inputs:
       nixpkgs:
         follows: nixpkgs
-  agents-instructions-builder:
-    url: git+https://github.com/Alb-O/agents-instructions-builder.git?ref=main
+  materializer:
+    url: git+https://github.com/Alb-O/materializer.git?ref=main
     flake: false
   committer:
     url: git+https://github.com/Alb-O/committer.git?ref=main
     flake: false
 imports:
-  - agents-instructions-builder
+  - materializer
   - committer
