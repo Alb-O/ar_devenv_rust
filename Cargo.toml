@@ -1,0 +1,8 @@
+[package]
+name = "rust-base-smoke"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+name = "rust_base_smoke"
+path = "src/lib.rs"

@@ -1,0 +1,12 @@
+[build]
+target-dir = "target"
+
+[alias]
+xcheck = "check --workspace --all-targets --all-features"
+xfmt = "fmt --all"
+xfmt-check = "fmt --all --check"
+xlint = "clippy --workspace --all-targets --all-features -- -D warnings"
+xtest = "test --workspace --all-targets --all-features"
+check-wasm = "check --workspace --target wasm32-unknown-unknown"
+check-musl = "check --workspace --target x86_64-unknown-linux-musl"
+check-arm64 = "check --workspace --target aarch64-unknown-linux-gnu"
