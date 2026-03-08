@@ -2,8 +2,21 @@
 
 let
   baseAgentsText = builtins.readFile ./AGENTS.md;
+  xdgCacheHome =
+    let
+      fromXdg = builtins.getEnv "XDG_CACHE_HOME";
+      fromHome = builtins.getEnv "HOME";
+    in
+    if fromXdg != "" then
+      fromXdg
+    else if fromHome != "" then
+      "${fromHome}/.cache"
+    else
+      "/tmp";
 in
 {
+  env.CARGO_BUILD_BUILD_DIR = "${xdgCacheHome}/cargo/targets";
+
   languages.rust = {
     enable = true;
     toolchainFile = ./rust-toolchain.toml;
