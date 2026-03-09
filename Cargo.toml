@@ -1,8 +1,8 @@
 [package]
-name = "env-rust-smoke"
+name = "dvnv-rust-env-smoke"
 version = "0.1.0"
 edition = "2024"
 
 [lib]
-name = "env_rust_smoke"
+name = "dvnv_rust_env_smoke"
 path = "src/lib.rs"

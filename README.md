@@ -16,17 +16,17 @@ Reusable Rust nightly base environment for polyrepo setups using `devenv` v2.
 
 ```yaml
 inputs:
-  env-rust:
-    url: github:Alb-O/env-rust
+  dvnv-rust-env:
+    url: github:Alb-O/dvnv-rust-env
     flake: false
 imports:
-  - env-rust
+  - dvnv-rust-env
 ```
 
 ## Consumer treefmt overrides
 
 Consumers can extend the shared Rust formatting by adding extra programs under `treefmt.config`.
-This merges with `env-rust` defaults (for example, `rustfmt` stays enabled):
+This composes with `dvnv-rust-env` defaults (for example, `rustfmt` stays enabled):
 
 ```nix
 {
