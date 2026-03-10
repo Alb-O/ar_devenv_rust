@@ -82,7 +82,12 @@ let
           cd "$temp_workspace"
           ${pkgs.lib.getExe pkgs.cargo-sort} "''${opts[@]}" .
         )
-        cp "$temp_workspace/Cargo.toml" "$f"
+        # pre-commit treats any formatter write as a modification, even when
+        # the content stays identical. Only replace the managed spec when the
+        # sorted scratch manifest actually differs.
+        if ! cmp -s "$temp_workspace/Cargo.toml" "$f"; then
+          cp "$temp_workspace/Cargo.toml" "$f"
+        fi
         cleanup_temp_workspace
         trap - EXIT
       )
