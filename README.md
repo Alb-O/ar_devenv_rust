@@ -11,7 +11,7 @@ Reusable Rust nightly base environment for polyrepo setups using `devenv` v2.
 - Git hooks: pre-commit `treefmt` hook enabled
 - Scripts: `fmt`, `fmt-check`, `lint`, `check`, `run-tests`, `check-targets`, `ci`
 - Outputs: `outputs.rust-toolchain`
-- Derived package metadata: `rustEnv.package.name` and `outputs.cargo_package_name`
+- Derived package metadata: `rustEnv.package.name`, `rustEnv.package.version`, `outputs.cargo_package_name`, and `outputs.cargo_package_version`
 - Instructions: exports `AGENTS.md` through `instructions.instructions` for composer consumers
 - Optional Bevy runtime/build wiring from `modules/bevy/`
 - Optional managed Cargo manifest generation from `modules/managed-cargo/`
@@ -64,6 +64,7 @@ by hand:
 ```nix
 {
   pname = config.rustEnv.package.name;
+  version = config.rustEnv.package.version;
 }
 ```
 

@@ -17,6 +17,16 @@ let
     if lib.hasPrefix "/" pathString then pathString else "${config.devenv.root}/${pathString}";
   managedCargoSpecPath = resolveFromRoot managedCargoCfg.specPath;
   localCargoManifestPath = "${config.devenv.root}/Cargo.toml";
+  localCargoManifestValue =
+    if builtins.pathExists localCargoManifestPath then
+      builtins.fromTOML (builtins.readFile localCargoManifestPath)
+    else
+      { };
+  managedCargoSpecValue =
+    if managedCargoCfg.enable && builtins.pathExists managedCargoSpecPath then
+      builtins.fromTOML (builtins.readFile managedCargoSpecPath)
+    else
+      { };
   packageManifestPath =
     if cfg.package.manifestPath != null then
       resolveFromRoot cfg.package.manifestPath
@@ -34,6 +44,33 @@ let
   packageName =
     if packageManifestValue ? package && packageManifestValue.package ? name then
       packageManifestValue.package.name
+    else
+      null;
+  workspacePackageVersionFrom =
+    manifestValue:
+    if
+      manifestValue ? workspace
+      && manifestValue.workspace ? package
+      && manifestValue.workspace.package ? version
+      && builtins.isString manifestValue.workspace.package.version
+    then
+      manifestValue.workspace.package.version
+    else
+      null;
+  packageVersion =
+    if packageManifestValue ? package && packageManifestValue.package ? version then
+      if builtins.isString packageManifestValue.package.version then
+        packageManifestValue.package.version
+      else if
+        packageManifestValue.package.version ? workspace && packageManifestValue.package.version.workspace
+      then
+        let
+          versionFromManagedSpec = workspacePackageVersionFrom managedCargoSpecValue;
+          versionFromRootCargo = workspacePackageVersionFrom localCargoManifestValue;
+        in
+        if versionFromManagedSpec != null then versionFromManagedSpec else versionFromRootCargo
+      else
+        null
     else
       null;
   xdgCacheHome =
@@ -91,6 +128,12 @@ in
         type = lib.types.nullOr lib.types.str;
         readOnly = true;
         description = "Package name derived from rustEnv.package.manifestPath.";
+      };
+
+      version = lib.mkOption {
+        type = lib.types.nullOr lib.types.str;
+        readOnly = true;
+        description = "Package version derived from rustEnv.package.manifestPath.";
       };
     };
 
@@ -151,11 +194,13 @@ in
       outputs = lib.mkMerge [
         {
           cargo_package_name = packageName;
+          cargo_package_version = packageVersion;
           rust-toolchain = config.languages.rust.toolchainPackage;
         }
       ];
 
       rustEnv.package.name = packageName;
+      rustEnv.package.version = packageVersion;
 
       enterTest = ''
         set -euo pipefail
@@ -182,6 +227,10 @@ in
         {
           assertion = packageName != null;
           message = "rustEnv.package.manifestPath does not contain [package].name: ${packageManifestPath}";
+        }
+        {
+          assertion = packageVersion != null;
+          message = "rustEnv.package.manifestPath does not contain a resolvable package version: ${packageManifestPath}";
         }
       ];
     })
