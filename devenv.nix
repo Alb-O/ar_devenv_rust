@@ -2,6 +2,7 @@
   pkgs,
   config,
   lib,
+  options,
   ...
 }:
 
@@ -102,10 +103,6 @@ in
         }
       ];
 
-      # Consumers that also import dvnv-instructions-composer should inherit the
-      # shared Rust coding guidance automatically via instructions composition.
-      instructions.instructions = lib.mkAfter [ (builtins.readFile ./AGENTS.md) ];
-
       enterTest = ''
         set -euo pipefail
 
@@ -122,5 +119,11 @@ in
         ''}
       '';
     }
+    (lib.mkIf (options ? instructions && options.instructions ? instructions) {
+      # `instructions.instructions` is declared by composer/agent-style modules,
+      # not by devenv itself. Guard this assignment so plain Rust-env consumers
+      # that do not import those modules still evaluate successfully.
+      instructions.instructions = lib.mkAfter [ (builtins.readFile ./AGENTS.md) ];
+    })
   ];
 }

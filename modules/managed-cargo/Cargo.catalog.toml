@@ -3,3 +3,6 @@ version = "1.0.228"
 
 [crates.serde_json]
 version = "1.0.149"
+
+[crates.bevy]
+version = "0.18.1"

@@ -27,8 +27,20 @@ let
     #
   '';
   resolveFromRoot = path: if lib.hasPrefix "/" path then path else "${config.devenv.root}/${path}";
+  pathIsInsideRoot =
+    path:
+    let
+      root = toString config.devenv.root;
+      rootPrefix = "${root}/";
+    in
+    path == root || lib.hasPrefix rootPrefix path;
   managedCargoCatalogPath = resolveFromRoot cfg.catalogPath;
   managedCargoSpecPath = resolveFromRoot cfg.specPath;
+  managedCargoSourcePath = resolveFromRoot (
+    if cfg.sourcePath != null then cfg.sourcePath else builtins.dirOf cfg.specPath
+  );
+  managedCargoShouldMaterialize =
+    managedCargoEnabled && cfg.outputPath != null && pathIsInsideRoot managedCargoSpecPath;
   managedCargoManifestJsonText =
     if managedCargoEnabled then
       builtins.readFile (
@@ -63,6 +75,22 @@ let
       pkgs.writeText "rust-deps-catalog.toml" (builtins.readFile managedCargoCatalogPath)
     else
       null;
+  managedCargoSourceTree =
+    if managedCargoEnabled then
+      pkgs.runCommand "${baseNameOf managedCargoSourcePath}-cargo-source" { } ''
+        mkdir -p "$out"
+        cp -R ${
+          builtins.path {
+            path = managedCargoSourcePath;
+            name = "${baseNameOf managedCargoSourcePath}-source";
+          }
+        }/. "$out"/
+        chmod -R u+w "$out"
+        rm -f "$out/Cargo.toml"
+        cp ${managedCargoManifestFile} "$out/Cargo.toml"
+      ''
+    else
+      null;
 in
 {
   options."rust-env".managedCargo = {
@@ -89,6 +117,12 @@ in
       default = "Cargo.toml";
       description = "Output path for the generated Cargo manifest. Set to null to disable workspace materialization and expose only outputs.cargo_manifest.";
     };
+
+    sourcePath = lib.mkOption {
+      type = lib.types.nullOr lib.types.str;
+      default = null;
+      description = "Repo source root used for outputs.cargo_source_tree. Defaults to the directory containing specPath.";
+    };
   };
 
   config = lib.mkMerge [
@@ -98,14 +132,19 @@ in
           assertion = builtins.pathExists managedCargoSpecPath;
           message = "rust-env.managedCargo.enable is true but specPath does not exist: ${managedCargoSpecPath}";
         }
+        {
+          assertion = builtins.pathExists managedCargoSourcePath;
+          message = "rust-env.managedCargo.enable is true but sourcePath does not exist: ${managedCargoSourcePath}";
+        }
       ];
 
       outputs = lib.mkIf managedCargoEnabled {
         cargo_manifest = managedCargoManifestFile;
+        cargo_source_tree = managedCargoSourceTree;
         rust_deps_catalog = managedCargoCatalogFile;
       };
     }
-    (lib.mkIf (managedCargoEnabled && cfg.outputPath != null) {
+    (lib.mkIf managedCargoShouldMaterialize {
       files."${cfg.outputPath}".source = managedCargoManifestFile;
     })
   ];

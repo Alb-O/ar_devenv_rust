@@ -71,18 +71,20 @@ Available options:
 - `"rust-env".managedCargo.catalogPath`
 - `"rust-env".managedCargo.specPath`
 - `"rust-env".managedCargo.outputPath`
+- `"rust-env".managedCargo.sourcePath`
 
 When enabled:
 
 - `Cargo.toml` is generated with a clear "do not edit" header
 - `outputs.cargo_manifest` is exposed for packaging and cross-repo consumers
+- `outputs.cargo_source_tree` exposes a build-ready source tree with the generated `Cargo.toml` injected
 - `outputs.rust_deps_catalog` exposes the resolved shared catalog
 - virtual workspace roots are supported, including `[workspace.dependencies]`
 - treefmt `cargo-sort` also formats the configured `rust-env.managedCargo.specPath` when it is inside the repo root
 
-For cross-repo consumers, set `"rust-env".managedCargo.outputPath = null` in the
-imported project so the generated manifest is exposed as an output without
-materializing a file into the consumer repo.
+When `specPath` points outside the current repo root, managed Cargo now skips
+local `Cargo.toml` materialization automatically while still exposing the
+generated manifest and source-tree outputs for downstream packaging.
 
 For a virtual-workspace layout, keep the root workspace manifest content in
 `Cargo.dvnv.toml` and keep member crate `Cargo.toml` files checked in normally.
