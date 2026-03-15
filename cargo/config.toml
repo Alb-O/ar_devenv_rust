@@ -1,3 +1,6 @@
+[unstable]
+profile-rustflags = true
+
 [build]
 target-dir = "target"
 
@@ -6,6 +9,9 @@ target-dir = "target"
 # fast-link path to materialize into consumer repos on Linux.
 linker = "clang"
 rustflags = ["-C", "link-arg=-fuse-ld=mold"]
+
+[profile.release]
+rustflags = ["-Z", "fmt-debug=none", "-Z", "location-detail=none"]
 
 [alias]
 xcheck = "check --workspace --all-targets --all-features"
