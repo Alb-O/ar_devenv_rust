@@ -120,6 +120,25 @@ When enabled:
 - virtual workspace roots are supported, including `[workspace.dependencies]`
 - treefmt `cargo-sort` also formats the configured `rustEnv.managedCargo.specPath` when it is inside the repo root
 
+Also available as a reusable helper for Nix packaging:
+
+```nix
+let
+  managedCargo = import ./modules/managed-cargo/lib.nix {
+    inherit pkgs lib;
+  };
+  outputs = managedCargo.mkManagedCargoOutputs {
+    catalogPath = ./modules/managed-cargo/Cargo.catalog.toml;
+    specPath = ./Cargo.poly.toml;
+    sourcePath = ./.;
+    derivationNamePrefix = "my-crate";
+  };
+in
+{
+  src = outputs.cargoSourceTree;
+}
+```
+
 Preferred `Cargo.poly.toml` style uses regular dependency tables with inline
 tables or `true`, rather than one `[dependencies.<crate>]` block per crate:
 

@@ -9,8 +9,9 @@
 let
   cfg = config.rustEnv.managedCargo;
   managedCargoEnabled = cfg.enable;
-  managedCargoMergeScript = ./merge-managed-cargo.py;
-  managedCargoTomlFormat = pkgs.formats.toml { };
+  managedCargoLib = import ./lib.nix {
+    inherit pkgs lib;
+  };
   editablePaths = import ./editable-paths.nix {
     inherit config inputs lib;
   };
@@ -41,54 +42,14 @@ let
   );
   managedCargoShouldMaterialize =
     managedCargoEnabled && cfg.outputPath != null && pathIsInsideRoot managedCargoSpecPath;
-  managedCargoManifestJsonText =
+  managedCargoOutputs =
     if managedCargoEnabled then
-      builtins.readFile (
-        pkgs.runCommand "cargo-manifest.json"
-          {
-            nativeBuildInputs = [ pkgs.python3 ];
-            passAsFile = [
-              "catalogToml"
-              "specToml"
-            ];
-            catalogToml = builtins.readFile managedCargoCatalogPath;
-            specToml = builtins.readFile managedCargoSpecPath;
-          }
-          ''
-            python3 ${managedCargoMergeScript} "$catalogTomlPath" "$specTomlPath" > "$out"
-          ''
-      )
-    else
-      "";
-  managedCargoManifestValue =
-    if managedCargoManifestJsonText != "" then builtins.fromJSON managedCargoManifestJsonText else null;
-  managedCargoManifestFile =
-    if managedCargoManifestValue != null then
-      pkgs.writeText "Cargo.toml" (
-        managedCargoHeader
-        + builtins.readFile (managedCargoTomlFormat.generate "Cargo.toml.body" managedCargoManifestValue)
-      )
-    else
-      null;
-  managedCargoCatalogFile =
-    if managedCargoEnabled then
-      pkgs.writeText "rust-deps-catalog.toml" (builtins.readFile managedCargoCatalogPath)
-    else
-      null;
-  managedCargoSourceTree =
-    if managedCargoEnabled then
-      pkgs.runCommand "${baseNameOf managedCargoSourcePath}-cargo-source" { } ''
-        mkdir -p "$out"
-        cp -R ${
-          builtins.path {
-            path = managedCargoSourcePath;
-            name = "${baseNameOf managedCargoSourcePath}-source";
-          }
-        }/. "$out"/
-        chmod -R u+w "$out"
-        rm -f "$out/Cargo.toml"
-        cp ${managedCargoManifestFile} "$out/Cargo.toml"
-      ''
+      managedCargoLib.mkManagedCargoOutputs {
+        catalogPath = managedCargoCatalogPath;
+        specPath = managedCargoSpecPath;
+        sourcePath = managedCargoSourcePath;
+        header = managedCargoHeader;
+      }
     else
       null;
 in
@@ -139,13 +100,13 @@ in
       ];
 
       outputs = lib.mkIf managedCargoEnabled {
-        cargo_manifest = managedCargoManifestFile;
-        cargo_source_tree = managedCargoSourceTree;
-        rust_deps_catalog = managedCargoCatalogFile;
+        cargo_manifest = managedCargoOutputs.cargoManifest;
+        cargo_source_tree = managedCargoOutputs.cargoSourceTree;
+        rust_deps_catalog = managedCargoOutputs.rustDepsCatalog;
       };
     }
     (lib.mkIf managedCargoShouldMaterialize {
-      files."${cfg.outputPath}".source = managedCargoManifestFile;
+      files."${cfg.outputPath}".source = managedCargoOutputs.cargoManifest;
     })
   ];
 }
