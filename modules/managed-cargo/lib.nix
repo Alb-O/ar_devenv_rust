@@ -4,9 +4,10 @@
 }:
 
 let
+  nu = lib.getExe pkgs.nushell;
   managedCargoMergeScriptPath = builtins.path {
-    path = ./merge-managed-cargo.py;
-    name = "merge-managed-cargo.py";
+    path = ./merge-managed-cargo.nu;
+    name = "merge-managed-cargo.nu";
   };
   managedCargoTomlFormat = pkgs.formats.toml { };
 in
@@ -23,12 +24,12 @@ in
     let
       resolvedMergeScriptPath = builtins.path {
         path = mergeScriptPath;
-        name = "merge-managed-cargo.py";
+        name = "merge-managed-cargo.nu";
       };
       cargoManifestJsonText = builtins.readFile (
         pkgs.runCommand "${derivationNamePrefix}-manifest.json"
           {
-            nativeBuildInputs = [ pkgs.python3 ];
+            nativeBuildInputs = [ pkgs.nushell ];
             passAsFile = [
               "catalogToml"
               "specToml"
@@ -37,7 +38,7 @@ in
             specToml = builtins.readFile specPath;
           }
           ''
-            python3 ${resolvedMergeScriptPath} "$catalogTomlPath" "$specTomlPath" > "$out"
+            ${nu} ${resolvedMergeScriptPath} "$catalogTomlPath" "$specTomlPath" > "$out"
           ''
       );
       cargoManifestValue = builtins.fromJSON cargoManifestJsonText;

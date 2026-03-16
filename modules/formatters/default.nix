@@ -55,7 +55,7 @@ let
   typosConfigPath = typosToml.generate "typos-config.toml" (
     lib.recursiveUpdate config.rustEnv.typos.managedConfig typosLocalConfig
   );
-  prepareCargoSortWorkspace = ./prepare-cargo-sort-workspace.py;
+  prepareCargoSortWorkspace = ./prepare-cargo-sort-workspace.nu;
   cargoSortWrapper = pkgs.writeShellScriptBin "cargo-sort-wrapper" ''
     set -euo pipefail
 
@@ -93,7 +93,7 @@ let
 
         trap cleanup_temp_workspace EXIT
 
-        ${pkgs.lib.getExe pkgs.python3} ${prepareCargoSortWorkspace} "$f" "$temp_workspace"
+        ${pkgs.lib.getExe pkgs.nushell} ${prepareCargoSortWorkspace} "$f" "$temp_workspace"
         (
           cd "$temp_workspace"
           ${pkgs.lib.getExe pkgs.cargo-sort} "''${opts[@]}" .

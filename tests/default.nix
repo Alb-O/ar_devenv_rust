@@ -10,3 +10,10 @@
     repoRoot
     ;
 })
+// (import ./formatters.nix {
+  inherit
+    lib
+    pkgs
+    repoRoot
+    ;
+})

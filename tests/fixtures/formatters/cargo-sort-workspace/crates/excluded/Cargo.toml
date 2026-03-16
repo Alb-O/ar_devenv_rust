@@ -1,0 +1,4 @@
+[package]
+name = "crate-excluded"
+version.workspace = true
+edition = "2024"

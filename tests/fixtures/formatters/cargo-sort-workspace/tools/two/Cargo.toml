@@ -1,0 +1,4 @@
+[package]
+name = "tool-two"
+version.workspace = true
+edition = "2024"
