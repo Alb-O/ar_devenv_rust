@@ -1,0 +1,12 @@
+[package]
+name = "helper-fixture"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+demo = { features = ["spec-feature"] }
+path_dep = { path = "./vendor/path-dep" }
+git_dep = { git = "https://example.com/git-dep.git" }
+
+[dev-dependencies]
+test_only = true

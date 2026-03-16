@@ -1,0 +1,7 @@
+[package]
+name = "module-fixture"
+version = "0.2.0"
+edition = "2024"
+
+[dependencies]
+demo = { features = ["spec-feature"] }

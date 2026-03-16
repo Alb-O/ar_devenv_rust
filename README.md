@@ -9,7 +9,7 @@ Reusable Rust nightly base environment for polyrepo setups using `devenv` v2.
 - Targets: `wasm32-unknown-unknown`, `x86_64-unknown-linux-musl`, `aarch64-unknown-linux-gnu`
 - Treefmt: enabled with `rustfmt` program using `cargo/rustfmt.toml`
 - Git hooks: pre-commit `treefmt` and `typos` hooks enabled
-- Scripts: `fmt`, `fmt-check`, `spellcheck`, `spellcheck-fix`, `lint`, `check`, `run-tests`, `check-targets`, `ci`
+- Scripts: `fmt`, `fmt-check`, `spellcheck`, `spellcheck-fix`, `run-nix-tests`, `lint`, `check`, `run-tests`, `check-targets`, `ci`
 - Outputs: `outputs.rust-toolchain`
 - Derived package metadata: `rustEnv.package.name`, `rustEnv.package.version`, `outputs.cargo_package_name`, and `outputs.cargo_package_version`
 - Instructions: exports `AGENTS.md` through `instructions.instructions` for composer consumers

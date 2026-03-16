@@ -157,6 +157,7 @@ in
 
       packages = [
         pkgs.just
+        pkgs.nix-unit
         pkgs.openssl
         pkgs.pkg-config
       ]
@@ -170,12 +171,18 @@ in
           ci.exec = ''
             set -euo pipefail
             fmt-check
+            run-nix-tests
             ${lib.optionalString hasLocalCargoManifest ''
               lint
               check
               run-tests
               check-targets
             ''}
+          '';
+        }
+        {
+          run-nix-tests.exec = ''
+            nix-unit --expr 'import ${config.devenv.root}/tests { lib = import ${pkgs.path}/lib; pkgs = import ${pkgs.path} {}; repoRoot = ${config.devenv.root}; }'
           '';
         }
         (lib.mkIf hasLocalCargoManifest {
@@ -211,6 +218,7 @@ in
         clippy-driver --version
 
         fmt-check
+        run-nix-tests
         ${lib.optionalString hasLocalCargoManifest ''
           lint
           run-tests
