@@ -15,11 +15,12 @@ def fail [message: string]: nothing -> error {
   error make --unspanned $message
 }
 
-def load-toml [path: path]: nothing -> record {
-  open --raw $path | decode utf-8 | from toml
+def load-toml []: path -> record {
+  open --raw $in | decode utf-8 | from toml
 }
 
-def expect-record [value: any message: string] {
+def expect-record [message: string]: any -> oneof<record, error> {
+  let value = $in
   if (($value | describe) !~ '^record') {
     fail $message
   }
@@ -27,7 +28,8 @@ def expect-record [value: any message: string] {
   $value
 }
 
-def expect-list [value: any message: string] {
+def expect-list [message: string]: any -> oneof<list<any>, error> {
+  let value = $in
   if (($value | describe) !~ '^list') {
     fail $message
   }
@@ -35,7 +37,8 @@ def expect-list [value: any message: string] {
   $value
 }
 
-def normalize-catalog-entry [crate_name: string raw_entry: any] {
+def normalize-catalog-entry [crate_name: string]: any -> oneof<record, error> {
+  let raw_entry = $in
   let entry_type = ($raw_entry | describe)
 
   if $entry_type == 'string' {
@@ -56,7 +59,8 @@ def normalize-catalog-entry [crate_name: string raw_entry: any] {
   $normalized
 }
 
-def normalize-dependency-spec [crate_name: string raw_spec: any] {
+def normalize-dependency-spec [crate_name: string]: any -> oneof<record, error> {
+  let raw_spec = $in
   let spec_type = ($raw_spec | describe)
 
   if $spec_type == 'bool' {
@@ -81,13 +85,13 @@ def merge-features [catalog_features: any spec_features: any] {
   let catalog_list = if ($catalog_features | describe) == 'nothing' {
     []
   } else {
-    expect-list $catalog_features 'catalog dependency features must be a list'
+    $catalog_features | expect-list 'catalog dependency features must be a list'
   }
 
   let spec_list = if ($spec_features | describe) == 'nothing' {
     []
   } else {
-    expect-list $spec_features 'dependency features must be a list'
+    $spec_features | expect-list 'dependency features must be a list'
   }
 
   [$catalog_list $spec_list]
@@ -106,7 +110,7 @@ def merge-features [catalog_features: any spec_features: any] {
 }
 
 def merge-dependency [crate_name: string raw_spec: any catalog: record] {
-  let spec = normalize-dependency-spec $crate_name $raw_spec
+  let spec = ($raw_spec | normalize-dependency-spec $crate_name)
   let has_passthrough = ($passthrough_source_keys | any {|key| $spec | columns | any {|column| $column == $key } })
 
   if ('version' in ($spec | columns)) and (not $has_passthrough) {
@@ -165,7 +169,7 @@ def visit [node: any catalog: record] {
             $key: (
               if $key in $dependency_section_names {
                 merge-dependency-table (
-                  expect-record $value $"($key | into string) must be a table"
+                  $value | expect-record $"($key | into string) must be a table"
                 ) $catalog
               } else {
                 visit $value $catalog
@@ -181,7 +185,7 @@ def visit [node: any catalog: record] {
 }
 
 def load-catalog [catalog_path: path]: nothing -> record {
-  let parsed = expect-record (load-toml $catalog_path) 'catalog TOML must be a top-level table'
+  let parsed = ($catalog_path | load-toml | expect-record 'catalog TOML must be a top-level table')
   let crates = ($parsed | get -o crates)
 
   if (($crates | describe) !~ '^record') {
@@ -196,7 +200,7 @@ def load-catalog [catalog_path: path]: nothing -> record {
       $acc
       | merge {
           $crate_name: (
-            normalize-catalog-entry $crate_name ($crates | get $crate_name)
+            (($crates | get $crate_name) | normalize-catalog-entry $crate_name)
           )
         }
     }
@@ -204,7 +208,7 @@ def load-catalog [catalog_path: path]: nothing -> record {
 
 def main [catalog_path: path spec_path: path]: nothing -> string {
   let catalog = load-catalog $catalog_path
-  let spec = expect-record (load-toml $spec_path) 'Cargo.poly.toml must be a top-level table'
+  let spec = ($spec_path | load-toml | expect-record 'Cargo.poly.toml must be a top-level table')
 
   visit $spec $catalog | to json --indent 2
 }
