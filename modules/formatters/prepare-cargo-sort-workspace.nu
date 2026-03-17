@@ -1,6 +1,6 @@
 #!/usr/bin/env nu
 
-def main [spec_path: string scratch_root: string] {
+def main [spec_path: path scratch_root: path]: nothing -> nothing {
   let spec_path = ($spec_path | path expand)
   let scratch_root = ($scratch_root | path expand)
   let repo_root = ($spec_path | path dirname)

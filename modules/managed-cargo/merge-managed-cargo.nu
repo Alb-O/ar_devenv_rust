@@ -11,11 +11,11 @@ const passthrough_source_keys = [
   git
 ]
 
-def fail [message: string] {
+def fail [message: string]: nothing -> error {
   error make --unspanned $message
 }
 
-def load-toml [path: string] {
+def load-toml [path: path]: nothing -> record {
   open --raw $path | decode utf-8 | from toml
 }
 
@@ -180,7 +180,7 @@ def visit [node: any catalog: record] {
   }
 }
 
-def load-catalog [catalog_path: string] {
+def load-catalog [catalog_path: path]: nothing -> record {
   let parsed = expect-record (load-toml $catalog_path) 'catalog TOML must be a top-level table'
   let crates = ($parsed | get -o crates)
 
@@ -202,7 +202,7 @@ def load-catalog [catalog_path: string] {
     }
 }
 
-def main [catalog_path: string spec_path: string] {
+def main [catalog_path: path spec_path: path]: nothing -> string {
   let catalog = load-catalog $catalog_path
   let spec = expect-record (load-toml $spec_path) 'Cargo.poly.toml must be a top-level table'
 
