@@ -34,7 +34,7 @@ let
     # To add globally managed crates (with version numbers):
     # - check latest crate releases using `cargo info`
     # - add to the shared AgentRoots catalog source of truth, edit: `${managedCargoCatalogEditPath}`
-    # - refresh nix store symlinks in local project: `devenv shell --nu-tui --no-eval-cache --refresh-eval-cache true`
+    # - refresh nix store symlinks in local project: `devenv shell --no-tui --no-eval-cache --refresh-eval-cache true`
     #
   '';
   managedCargoSourcePath = resolveFromRoot (
