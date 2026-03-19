@@ -20,17 +20,17 @@ Reusable Rust nightly base environment for AgentRoots workspaces using `devenv` 
 
 ```yaml
 inputs:
-  ar_rust_env:
-    url: github:Alb-O/ar_rust_env
+  ar_devenv_rust:
+    url: github:Alb-O/ar_devenv_rust
     flake: false
 imports:
-  - ar_rust_env
+  - ar_devenv_rust
 ```
 
 ## Consumer treefmt overrides
 
 Consumers can extend the shared Rust formatting by adding extra programs under `treefmt.config`.
-This composes with `ar_rust_env` defaults (for example, `rustfmt` stays enabled):
+This composes with `ar_devenv_rust` defaults (for example, `rustfmt` stays enabled):
 
 ```nix
 {
