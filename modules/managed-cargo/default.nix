@@ -33,7 +33,7 @@ let
     # Project-local manifest and dependency settings (no version numbers): `${managedCargoSpecEditPath}`
     # To add globally managed crates (with version numbers):
     # - check latest crate releases using `cargo info`
-    # - add to polyrepo-global source of true, edit: `${managedCargoCatalogEditPath}`
+    # - add to the shared AgentRoots catalog source of truth, edit: `${managedCargoCatalogEditPath}`
     # - refresh nix store symlinks in local project: `devenv shell --nu-tui --no-eval-cache --refresh-eval-cache true`
     #
   '';

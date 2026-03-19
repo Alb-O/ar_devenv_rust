@@ -6,7 +6,7 @@
 let
   fixturesRoot = builtins.path {
     path = "${toString repoRoot}/tests/fixtures/formatters";
-    name = "poly-rust-env-formatter-fixtures";
+    name = "ar_rust_env-formatter-fixtures";
   };
   fixturesDir = toString fixturesRoot;
   fixturePath = name: "${fixturesDir}/${name}";

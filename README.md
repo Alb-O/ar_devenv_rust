@@ -1,6 +1,6 @@
 # Rust Base Devenv (Nightly)
 
-Reusable Rust nightly base environment for polyrepo setups using `devenv` v2.
+Reusable Rust nightly base environment for AgentRoots workspaces using `devenv` v2.
 
 ## Includes
 
@@ -20,17 +20,17 @@ Reusable Rust nightly base environment for polyrepo setups using `devenv` v2.
 
 ```yaml
 inputs:
-  poly-rust-env:
-    url: github:Alb-O/poly-rust-env
+  ar_rust_env:
+    url: github:Alb-O/ar_rust_env
     flake: false
 imports:
-  - poly-rust-env
+  - ar_rust_env
 ```
 
 ## Consumer treefmt overrides
 
 Consumers can extend the shared Rust formatting by adding extra programs under `treefmt.config`.
-This composes with `poly-rust-env` defaults (for example, `rustfmt` stays enabled):
+This composes with `ar_rust_env` defaults (for example, `rustfmt` stays enabled):
 
 ```nix
 {
